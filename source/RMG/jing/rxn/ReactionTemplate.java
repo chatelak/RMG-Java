@@ -447,17 +447,31 @@ public class ReactionTemplate {
                         int temp = 2;
 //                        if (name.equals("intra_H_migration")) {temp=2;}
 //                        if (name.equals("Birad_recombination")) {temp=2;}
-                        if (name.equals("Intra_R_Add_Endocyclic")) {temp=3;}
-                        if (name.equals("Intra_R_Add_Exocyclic")) {temp=3;}
+//                        if (name.equals("Intra_R_Add_Endocyclic")) {temp=3;}
+//                        if (name.equals("Intra_R_Add_Exocyclic")) {temp=3;}
 
 
 	            	ChemGraph rcg = (ChemGraph) ((reactants.iterator()).next());
+			Graph reactant = rcg.getGraph();
                         //Logger.info(rcg.toString());
 	            	// check if the reactant is cyclic
 	            	if (rcg.getCycleNumber() != 0) {
-	            		// First find the two node reaction sites of interest
-	            		// This is hardcoding of the intra_H_migration reaction family
-	            		//Iterator act_iter = reactionAdjList.getActions();            		
+
+
+	                    if (name.equals("Intra_R_Add_Exocyclic") || name.equals("Intra_R_Add_Endocyclic")) {
+
+				temp=3;
+				
+	                        Node n1 = rcg.getCentralNodeAt(1); //node having the radical site
+	                        Node n2 = rcg.getCentralNodeAt(temp); //addition node
+	                        if(reactant.strainedRing(n1,n2)) { //check if n1 and n2 are part of a planar ring
+                	                fg = null;
+        	                }
+	                    }
+
+	          	   // First find the two node reaction sites of interest
+	          	   // This is hardcoding of the intra_H_migration reaction family
+	           	   //Iterator act_iter = reactionAdjList.getActions();            		
 	                        
 	                    Node n1 = rcg.getCentralNodeAt(1); // loses radical here
 	                    Node n2 = rcg.getCentralNodeAt(temp); // gains radical here
@@ -479,9 +493,68 @@ public class ReactionTemplate {
 	                		    // There shouldn't be any rings larger than this.  For now don't do anything extra.
 	                		    break;
 	                	}
+			   if (name.equals("intra_H_migration") && comments.contains("R2") && rcg.getCentralNodeAt(4)!=null) {
+				fg = null;
+				}
+
+			    if (name.equals("intra_H_migration") || name.equals("Intra_Disproportionation")) {
+
+			    // Currently intra_H_migrations are blocked inside rings unless 1,2 shift, when the branch needs to stretch too far in the ring
+
+			    boolean failtest1 = false;
+			    boolean failtest2 = false;
+
+			    double mindis = ((double) mindistance + 1.0)/2.0;
+
+//			    System.out.println("Minimum distance "+mindis);
+//			    System.out.println("Count cyclics for node 1 "+rcg.getGraph().countCyclicsAlongMinPathInSameRing(n1, n2));
+//			    System.out.println("Count cyclics for node 2 "+rcg.getGraph().countCyclicsAlongMinPathInSameRing(n2, n1));
+
+			    if (rcg.getGraph().countCyclicsAlongMinPathInSameRing(n1, n2)-1 >= mindis) {failtest1 = true;}
+			    if (rcg.getGraph().countCyclicsAlongMinPathInSameRing(n2, n1)-1 >= mindis) {failtest2 = true;}
+
+			    if (mindistance > 1 ) {
+			        if ((rcg.getGraph().sameRing(n1, n2)) || failtest1 || failtest2 ) {
+//				    k = new Kinetics[1];
+//				    UncertainDouble uncertd = new UncertainDouble(0.0, 1.0,"Multiplier");
+//				    ArrheniusKinetics zero = new ArrheniusKinetics(uncertd, uncertd, uncertd,"Unknown", 5, name, "Forbidden");
+//				    k[0] = zero;
+//				    return k;		
+				    fg = null;
+				    }	
+			    }
+
+
+			    }
+	
 	            	}
 	            	
 	            } // end intraHmigration loop
+
+		    if (name.equals("Intra_Diels_alder2")) {
+
+			ChemGraph rcg = (ChemGraph) ((p_structure.getReactants()).next());
+			Graph reactant = rcg.getGraph();
+
+			int nbicyclics = 0;
+			Node n1 = new Node();
+			for (int temp = 1; temp <= 6; temp++) {	
+			     n1 = rcg.getCentralNodeAt(temp);
+			     if(reactant.inBiRing(n1)) {
+				nbicyclics++;
+				}
+			}
+
+			if(nbicyclics >2) {
+//			   k = new Kinetics[1];
+//			   UncertainDouble uncertd = new UncertainDouble(0.0, 1.0,"Multiplier");
+//			   ArrheniusKinetics zero = new ArrheniusKinetics(uncertd, uncertd, uncertd,"Unknown", 5, name, "Forbidden");
+//			   k[0] = zero;
+//			   return k;
+			   fg = null;
+			}
+		    } // end Intra_Diels_alder2
+
             }
 
 

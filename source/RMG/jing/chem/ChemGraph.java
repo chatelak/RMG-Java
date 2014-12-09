@@ -1429,6 +1429,9 @@ public class ChemGraph implements Matchable {
             System.exit(0);
         }
         thermo_graph.determineAromaticityAndWriteBBonds();
+        if (thermo_graph.isAromatic){
+        	this.isAromatic = true;
+        }
         //System.out.println(thermo_graph.toString());
         if (TDMETHOD.toLowerCase().startsWith("benson")) {
             gen = new BensonTDGenerator();
@@ -1437,8 +1440,13 @@ public class ChemGraph implements Matchable {
         } else {// default method is hybrid
             gen = new HybridTDGenerator();
         }
-        thermoData = gen.generateThermo(thermo_graph);
-        this.thermoComments = thermo_graph.getThermoComments(); // must copy comments since we made a copy of the chemgraph
+        thermoData = gen.generateThermo(this);
+        if(!this.fromprimarythermolibrary && this.isAromatic) {
+        	thermoData = gen.generateThermo(thermo_graph);
+        	this.thermoComments = thermo_graph.getThermoComments(); // must copy comments since we made a copy of the chemgraph
+        	} 
+        if(thermo_graph.fromprimarythermolibrary) {
+        	this.fromprimarythermolibrary = true;}
         return thermoData;
     }
 

@@ -166,6 +166,9 @@ public class Reaction {
             for (int numKinetics = 0; numKinetics < kinetics.length; numKinetics++) {
                 Kinetics k = k_All[numKinetics];
                 rate += k.calculateRate(p_temperature, Hrxn);
+            }            
+            if(isBackward()){
+            	rate = rate * calculateKeq(p_temperature);	
             }
             return rate;
         } else if (isForward()) {
@@ -1502,6 +1505,18 @@ public class Reaction {
         for (ListIterator<Species> iter = getReactants(); iter.hasNext();) {
             Species spe = iter.next();
             atoms += spe.getChemGraph().getAtomNumber();
+        }
+        return atoms;
+    }
+    
+    /**
+     * Return the total number of Carbon atoms in the reactants (and products).
+     */
+    public int getCarbonAtomNumber() {
+        int atoms = 0;
+        for (ListIterator<Species> iter = getReactants(); iter.hasNext();) {
+            Species spe = iter.next();
+            atoms += spe.getChemGraph().getCarbonNumber();
         }
         return atoms;
     }

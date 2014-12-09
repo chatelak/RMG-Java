@@ -28,6 +28,7 @@ L1: Y_rad
 				L5: C_rad/H/OneDeO
 			L4: C_rad/H/TwoDe
 				L5: C_rad/H/CdCd
+					L6: C_rad_cyclopentadiene
 			L4: CsJ-CSH
 				L5: CsJ-CsSsH
 				L5: CsJ-CdSsH
@@ -65,6 +66,7 @@ L1: Y_rad
 			L4: Cd_rad/NonDe
 			L4: Cd_rad/OneDe
 				L5: Cd_rad/Cd
+		L3: Cd_allenic
 	L2: Ct_rad
 	L2: Cb_rad
 	L2: CO_rad
